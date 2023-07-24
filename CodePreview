@@ -1,0 +1,90 @@
+//Text preview of the .tic file
+
+function TIC()
+	Update()
+	Render()
+end
+
+--Update
+function Update()
+	UpdateTarget()
+	UpdateVehicle()
+end
+--Rendering
+function Render()
+	if not started then
+		cls()
+	 started=true
+	end
+	DrawVehicle()
+end
+function DrawVehicle()
+	--circ(
+		--vehicle.pos.x,vehicle.pos.y,
+		--3,2)
+	pix(vehicle.pos.x,vehicle.pos.y,3)
+end
+
+--Vehicle
+vehicle={
+	pos={x=60,y=32},
+	vel={x=1,y=0},
+	acc={x=0,y=0},
+	maxSpeed=1,
+	maxForce=.005
+}
+target={
+	pos={x=120,y=68}
+}
+function UpdateTarget()
+	target.pos.x,target.pos.y=mouse()
+end
+function UpdateVehicle()
+	ApplySteering()
+	LimitVel()
+	MoveVehicle()
+end
+function ApplySteering()
+	local desired={
+		x=target.pos.x-vehicle.pos.x,
+		y=target.pos.y-vehicle.pos.y
+	}
+	local desiredL=math.sqrt(desired.x^2+desired.y^2)
+	desired.x=desired.x/desiredL *vehicle.maxSpeed
+	desired.y=desired.y/desiredL *vehicle.maxSpeed
+	
+	local steering={
+		x=desired.x-vehicle.vel.x,
+		y=desired.y-vehicle.vel.y
+	}
+	local steeringL=math.sqrt(steering.x^2+steering.y^2)
+	if steeringL>vehicle.maxForce then
+		steering.x=(steering.x/steeringL) *vehicle.maxForce
+		steering.y=(steering.y/steeringL) *vehicle.maxForce
+	end
+	
+	--Applying steering force
+	vehicle.acc.x=
+		vehicle.acc.x+steering.x
+	vehicle.acc.y=
+		vehicle.acc.y+steering.y
+end
+function MoveVehicle()
+	vehicle.vel.x=
+		vehicle.vel.x+vehicle.acc.x
+	vehicle.vel.y=
+		vehicle.vel.y+vehicle.acc.y
+	vehicle.pos.x=
+		vehicle.pos.x+vehicle.vel.x
+	vehicle.pos.y=
+		vehicle.pos.y+vehicle.vel.y
+end
+function LimitVel()
+	local l=math.sqrt(vehicle.vel.x^2+vehicle.vel.y^2)
+	if l>vehicle.maxSpeed then
+		vehicle.vel.x=
+			vehicle.vel.x/l *vehicle.maxSpeed
+		vehicle.vel.y=
+			vehicle.vel.y/l *vehicle.maxSpeed
+	end
+end
